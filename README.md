@@ -1,1 +1,1 @@
-# SpeciaRL
+# Specificity-aware reinforcement learning for fine-grained open-world classification
