@@ -1,0 +1,73 @@
+experiment_name: "7bmixed_train"
+experiment_group: "7bmixed_dataset"
+description: "7b mixed data experiment using general prompt, output/datasets/dataset_4e6f4a0ea9d833d5b7a9abf060b6198a2a467cc186911681722e0255e8b57aa3.parquet"
+
+prompts_file: "configs/prompts/base/general_base.ndjson"
+
+dataset:
+  sources:
+    - name: "cub200"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+    - name: "food101"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+    - name: "flowers102"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+    - name: "oxford_pets"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+    - name: "fgvc_aircraft"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+    - name: "stanford_cars"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "500"
+
+prediction:
+  model:
+    model_name: "qwen2.5-vl-7b-instruct"
+    model_type: "huggingface_vlm"
+    path_or_id: "data/models/Qwen2.5-VL-7B-Instruct"
+    device_map: "auto"
+    dtype: "auto"
+    model_loader_class: "Qwen2_5_VLForConditionalGeneration"
+
+  generation_params:
+    max_new_tokens: 2048
+    do_sample: false
+
+  num_predictions_per_sample: 1
+  batch_size: 1
+  target_splits: ["train"]
+
+verification:
+  api_base_url: http://localhost:8000/api/v1/
+  api_timeout: 1500
+  batch_size: 128
+  model: Qwen3-30B-A3B-Instruct-2507-FP8_nothinking_single
+  verifier_prompt: ver_base_single
+  resume: true
+
+output_dir: ./output/
+results_dir: ./results/
+seed: 42
+force_rebuild: false

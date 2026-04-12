@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+gunicorn
+redis
+pydantic
+google-genai
+tenacity
+PyYAML
+structlog
+motor
+orjson
+uvloop
+openai

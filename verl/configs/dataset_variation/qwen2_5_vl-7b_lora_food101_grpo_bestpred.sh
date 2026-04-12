@@ -1,0 +1,67 @@
+set -x
+ENGINE=${1:-vllm}
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False
+export HYDRA_FULL_ERROR=1
+
+export REWARD_LOG_LEVEL="debug"
+export VERIFICATION_API_TIMEOUT="2000"
+export VERIFICATION_MODEL="Qwen3-30B-A3B-Instruct-2507-FP8_nothinking_single"
+export VERIFICATION_PROMPT="ver_base_single"
+export VERIFICATION_RUN_NAME="7b_verl_food101_general_grpo_bestpred"
+export REWARD_MODE="all"
+export VERBOSE="true"
+
+
+python3 -m verl.trainer.main_ppo \
+    algorithm.adv_estimator=grpo \
+    data.train_files=/workspace/vlm_openworld_evaluator/output/datasets/dataset_4d87d0f91dd25fd7fd149a129de82a5f2c3f592ebe80a3817a11f88f21b2518b.parquet \
+    data.val_files=/workspace/vlm_openworld_evaluator/output/datasets/dataset_1947414b548f0515f9a00ff975b2b605bad07d754ffd5b6e18bd00c97578cb60.parquet \
+    data.train_batch_size=256 \
+    data.max_prompt_length=2048 \
+    data.max_response_length=2048 \
+    data.filter_overlong_prompts=True \
+    data.truncation=error \
+    data.image_key=images \
+    actor_rollout_ref.model.path=/workspace/verl/models/Qwen2.5-VL-7B-Instruct \
+    +actor_rollout_ref.model.torch_dtype=bfloat16 \
+    actor_rollout_ref.actor.optim.lr=3e-5 \
+    actor_rollout_ref.model.use_remove_padding=True \
+    actor_rollout_ref.actor.ppo_mini_batch_size=128 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=32 \
+    actor_rollout_ref.model.lora_rank=64 \
+    actor_rollout_ref.model.lora_alpha=32 \
+    actor_rollout_ref.model.target_modules=all-linear \
+    'actor_rollout_ref.model.exclude_modules=.*visual.*' \
+    actor_rollout_ref.actor.use_kl_loss=True \
+    actor_rollout_ref.actor.kl_loss_coef=0.01 \
+    actor_rollout_ref.actor.kl_loss_type=low_var_kl \
+    actor_rollout_ref.actor.entropy_coeff=0 \
+    actor_rollout_ref.model.enable_gradient_checkpointing=True \
+    +actor_rollout_ref.actor.fsdp_config.model_dtype=bf16 \
+    actor_rollout_ref.actor.fsdp_config.param_offload=False \
+    actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=20 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+    actor_rollout_ref.rollout.name=$ENGINE \
+    actor_rollout_ref.rollout.dtype=bfloat16 \
+    actor_rollout_ref.rollout.engine_kwargs.vllm.disable_mm_preprocessor_cache=True \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+    actor_rollout_ref.rollout.enable_chunked_prefill=False \
+    actor_rollout_ref.rollout.enforce_eager=False \
+    actor_rollout_ref.rollout.free_cache_engine=True \
+    actor_rollout_ref.rollout.n=10 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=20 \
+    actor_rollout_ref.ref.fsdp_config.param_offload=False \
+    algorithm.use_kl_in_reward=False \
+    reward_model.reward_manager=batch \
+    custom_reward_function.path=/workspace/verl/ow_rf/reward_best_prediction_dedup.py \
+    custom_reward_function.name=compute_score_batch \
+    trainer.critic_warmup=0 \
+    'trainer.logger=["console","tensorboard"]' \
+    trainer.project_name='7b_verl_food101_general_grpo_bestpred' \
+    trainer.experiment_name='qwen2_5_vl_3b_function_rm' \
+    trainer.n_gpus_per_node=4 \
+    trainer.nnodes=1 \
+    trainer.save_freq=1000 \
+    trainer.test_freq=5 \
+    trainer.total_epochs=15

@@ -1,0 +1,142 @@
+default_llm_model: "Qwen_Qwen3-30B-A3B-FP8_nothinking_single"
+default_verifier_prompt: "ver_base_json"
+
+# For Apptainer, services communicate over localhost
+redis_url: "redis://localhost:6379"
+
+models:
+  - name: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Qwen_Qwen3-30B-A3B-FP8_thinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Qwen_Qwen3-30B-A3B-FP8_nothinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Qwen_Qwen3-30B-A3B-FP8_nothinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Qwen_Qwen3-30B-A3B-FP8_thinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Qwen3-30B-A3B-Instruct-2507-FP8_nothinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-Instruct-2507-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Qwen3-30B-A3B-Instruct-2507-FP8_nothinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Qwen_Qwen3-30B-A3B-Instruct-2507-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Llama-4-Maverick-17B-128E-Instruct-FP8_nothinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Llama-4-Maverick-17B-128E-Instruct-FP8"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-70B-Instruct_nothinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-70B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-70B-Instruct_thinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-70B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-70B-Instruct_nothinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-70B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-70B-Instruct_thinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-70B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-8B-Instruct_nothinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-8B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-8B-Instruct_thinking_single"
+    type: "vllm_single"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-8B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-8B-Instruct_nothinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-8B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: false
+    timeout_seconds: 1200
+
+  - name: "Meta-Llama-3-8B-Instruct_thinking_json"
+    type: "vllm"
+    model_path: "/workspace/llm_caching_service/models/Meta-Llama-3-8B-Instruct"
+    api_base: "http://localhost:8001/"
+    thinking_enabled: true
+    timeout_seconds: 1200
+
+mongodb:
+  enabled: true
+  # For Apptainer, services communicate over localhost
+  url: "mongodb://admin:${MONGODB_PASSWORD}@localhost:27017/llm_caching?authSource=admin"
+  database: "llm_caching"
+  collection: "classification_logs"
+  max_occurrences: 100000 
+  worker_count: 4 
+
+
+logging:
+  level: "INFO" #INFO for debug           
+  format: "json"       
+  include_stdlib: true   
+  file_logging:
+    enabled: true
+    error_file: "logs/errors.log"
+    max_size: "100MB"
+    rotate_count: 3
+
+
+batching:
+  max_batch_prompt_size: 32

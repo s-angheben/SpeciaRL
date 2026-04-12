@@ -1,0 +1,36 @@
+experiment_name: mixed_qwen2_5_vl_7b_instruct_lora_verl_mixed_speciaRL_Meta_Llama_3_70B_Instruct_nothinking_single
+experiment_group: 7bpaper_mixed
+description: model evaluation on all test dataset
+prompts_file: configs/prompts/base/general_base.ndjson
+dataset:
+  sources:
+  - name: stanford_cars
+    source_split: test
+    target_split: test
+    indices: all
+prediction:
+  model:
+    model_name: qwen2.5-vl-7b-instruct_lora_verl_mixed_speciaRL
+    model_type: verl_vlm
+    path_or_id: /workspace/vlm_openworld_evaluator/data/trained_models/reb_7b_verl_mixed_general_grpo_bestpred_ck165
+    device_map: auto
+    dtype: auto
+    model_loader_class: Qwen2_5_VLForConditionalGeneration
+  generation_params:
+    max_new_tokens: 2048
+    do_sample: false
+  num_predictions_per_sample: 1
+  batch_size: 1
+  inference_batch_size: 256
+  target_splits:
+  - test
+verification:
+  api_base_url: http://localhost:8000/api/v1/
+  api_timeout: 1500
+  batch_size: 128
+  model: Meta-Llama-3-70B-Instruct_nothinking_single
+  verifier_prompt: ver_base_single
+output_dir: ./output/
+results_dir: ./results/
+seed: 42
+force_rebuild: false

@@ -1,0 +1,45 @@
+experiment_name: "7bcub200_train"
+experiment_group: "cub200"
+description: "cub200 dataset experiment using general prompt, output/datasets/dataset_ad7f7688582e445d42646bc3ab893870d04c79ee0c67af8ccfd051f0093a47a3.parquet"
+
+prompts_file: "configs/prompts/base/general_base.ndjson"
+
+dataset:
+  sources:
+    - name: "cub200"
+      source_split: "train"
+      target_split: "train"
+      indices: "all"
+      subset_size: "3000"
+
+# not used, this script is only used to create the training dataset  
+prediction:  
+  model:
+    model_name: "qwen2.5-vl-7b-instruct"
+    model_type: "huggingface_vlm"
+    path_or_id: "data/models/Qwen2.5-VL-7B-Instruct"
+    device_map: "auto"
+    dtype: "auto"
+    model_loader_class: "Qwen2_5_VLForConditionalGeneration"
+  
+  generation_params:
+    max_new_tokens: 2048
+    do_sample: false
+  
+  num_predictions_per_sample: 1
+  batch_size: 1
+  target_splits: ["train"]
+  
+
+verification:
+  api_base_url: http://localhost:8000/api/v1/
+  api_timeout: 1500
+  batch_size: 128
+  model: Qwen3-30B-A3B-Instruct-2507-FP8_nothinking_single
+  verifier_prompt: ver_base_single
+  resume: true
+  
+output_dir: ./output/
+results_dir: ./results/
+seed: 42
+force_rebuild: false

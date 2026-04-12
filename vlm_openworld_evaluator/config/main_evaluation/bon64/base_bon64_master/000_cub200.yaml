@@ -1,0 +1,39 @@
+experiment_name: basemodel_bon64_qwen2_5_vl_7b_instruct
+experiment_group: 7bpaper_basemodel_bon64
+description: base model BoN64 evaluation on all test dataset
+prompts_file: configs/prompts/base/general_base.ndjson
+dataset:
+  sources:
+  - name: cub200
+    source_split: test
+    target_split: test
+    indices: all
+prediction:
+  model:
+    model_name: qwen2.5-vl-7b-instruct
+    model_type: huggingface_vlm
+    path_or_id: data/models/Qwen2.5-VL-7B-Instruct
+    device_map: auto
+    dtype: auto
+    model_loader_class: Qwen2_5_VLForConditionalGeneration
+  generation_params:
+    max_new_tokens: 2048
+    do_sample: true
+    temperature: 0.6
+    top_p: 0.95
+    top_k: null
+    num_beams: 1
+  num_predictions_per_sample: 64
+  inference_batch_size: 8
+  target_splits:
+  - test
+verification:
+  api_base_url: http://localhost:8000/api/v1/
+  api_timeout: 1500
+  batch_size: 128
+  model: Meta-Llama-3-70B-Instruct_nothinking_single
+  verifier_prompt: ver_base_single
+output_dir: ./output/
+results_dir: ./results/
+seed: 42
+force_rebuild: false

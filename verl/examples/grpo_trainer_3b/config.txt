@@ -1,0 +1,25 @@
+Why This Configuration is Your Best Bet
+
+This script is the culmination of all previous fixes. Let's review why each setting is chosen:
+Parameter	Recommended Setting	Justification (Based on Our Debugging)
+n_gpus_per_node	4	Matches your hardware.
+tensor_model_parallel_size	4	Essential. Distributes the vLLM engine across all 4 GPUs, maximizing VRAM and performance.
+fsdp_config.param_offload	True	Mandatory. Fixes the ValueError during startup by ensuring the FSDP model doesn't block vLLM from initializing.
+fsdp_config.optimizer_offload	True	Mandatory. Saves a huge amount of VRAM by keeping optimizer states on the CPU.
+lora_rank	16	The Key Fix. This directly targets the FSDP.summon_full_params OOM error we saw last. It dramatically reduces the memory spike during validation, and r=16 is a very effective rank for LoRA.
+enforce_eager	True	Crucial for Stability. Prevents the OOM and NCCL errors caused by the CUDA graph capture process during vLLM's warmup. Disabling it is much safer.
+ppo_micro_batch_size_per_gpu	4	A conservative starting point. It's high enough to give decent throughput but low enough to leave memory for activations. We keep this from the last attempt as the LoRA rank was the more direct fix.
+gpu_memory_utilization	0.7	With 4 GPUs and a smaller LoRA rank, we can afford to give vLLM a generous 70% of the VRAM for a large KV cache, which improves inference performance.
+experiment_name	..._stable_r16_b4	A clear, descriptive name for what should be a successful run.
+
+
+
+
+Parameter	"Max Safe" Setting	Reason
+model.torch_dtype	bfloat16	The #1 Fix. Forces the model to be loaded in 16-bit precision, halving its base memory footprint and fixing the FSDP initialization OOM.
+max_prompt/response_length	512	The #2 Fix. Drastically reduces activation and KV Cache memory, which scales with sequence length.
+actor.ppo_micro_batch_size_per_gpu	1	The #3 Fix. The absolute minimum batch size, minimizing the memory needed for activations during the training step.
+model.lora_rank	8	Reduces the trainable parameter count to an absolute minimum, which helps with gradient memory and the summon_full_params operation.
+rollout.name	hf	Prevents the vLLM "memory squeeze" by using a dynamic, non-persistent KV Cache.
++actor...use_orig_params	True	Correctly handles the mixed requires_grad state of the LoRA model within FSDP.
+All fsdp_config offloading	True	The standard procedure to keep non-essential tensors on the CPU.

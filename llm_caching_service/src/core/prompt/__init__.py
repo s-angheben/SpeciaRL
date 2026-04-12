@@ -1,0 +1,1 @@
+from .classification import PROMPT_REGISTRY
